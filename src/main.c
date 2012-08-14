@@ -15,7 +15,9 @@ screen_window_t screen_hg_win = NULL;
 
 screen_window_t screen_bar_win = NULL;
 
-screen_window_t create_bg_window(const char *group, int dims[2], screen_context_t screen_ctx)
+screen_context_t screen_ctx;
+
+screen_window_t create_bg_window(const char *group, int dims[2])
 {
 	/* Start by creating the application window and window group. */
 	screen_window_t screen_win;
@@ -51,11 +53,6 @@ screen_window_t create_bg_window(const char *group, int dims[2], screen_context_
 
 void create_bar_window(const char *group, const char *id, int dims[2])
 {
-
-	screen_context_t screen_ctx;
-	screen_create_context(&screen_ctx, SCREEN_APPLICATION_CONTEXT);
-
-
 	screen_window_t screen_win;
 	screen_create_window_type(&screen_win, screen_ctx, SCREEN_CHILD_WINDOW);
 	screen_join_window_group(screen_win, group);
@@ -87,10 +84,6 @@ void create_bar_window(const char *group, const char *id, int dims[2])
 void create_hg_window(const char *group, const char *id, int dims[2])
 {
 	int i, j;
-
-
-	screen_context_t screen_ctx;
-	screen_create_context(&screen_ctx, SCREEN_APPLICATION_CONTEXT);
 
 	screen_window_t screen_win;
 	screen_create_window_type(&screen_win, screen_ctx, SCREEN_CHILD_WINDOW);
@@ -153,8 +146,6 @@ int main(int argc, char **argv)
 	int vis = 0;
 	int type;
 
-
-	screen_context_t screen_ctx;
 	screen_create_context(&screen_ctx, SCREEN_APPLICATION_CONTEXT);
 
 
@@ -173,7 +164,7 @@ int main(int argc, char **argv)
 
 	char str[16];
 	snprintf(str, sizeof(str), "%d", getpid());
-	screen_bg_win = create_bg_window(str, dims, screen_ctx);
+	screen_bg_win = create_bg_window(str, dims);
 
 
 	create_bar_window(str, bar_id_string, dims);
