@@ -1,0 +1,2 @@
+This project shows how Native and OpenGL windows can coexist.
+Almost all code is derived from WinHierarchy example and bbutil.c (OpenGL example projects).
