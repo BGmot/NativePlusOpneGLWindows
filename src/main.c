@@ -30,22 +30,57 @@ screen_window_t create_bg_window(const char *group, int dims[2])
 	screen_create_window(&screen_win, screen_ctx);
 	screen_create_window_group(screen_win, group);
 
-
-	int vis = 0;
+	int vis = 1;
 	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_VISIBLE, &vis);
-
 
 	int color = 0xffffff00;
 	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_COLOR, &color);
 
+	int zorder = 0;
+	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_ZORDER, &zorder);
 
 	int rect[4] = { 0, 0, 1, 1 };
 	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, rect+2);
 	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_SOURCE_SIZE, dims);
-
+	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_SIZE, dims);
 
 	int pos[2] = { -dims[0], -dims[1] };
 	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_SOURCE_POSITION, pos);
+
+	screen_buffer_t screen_buf;
+	screen_create_window_buffers(screen_win, 1);
+	screen_get_window_property_pv(screen_win, SCREEN_PROPERTY_RENDER_BUFFERS, (void **)&screen_buf);
+	screen_post_window(screen_win, screen_buf, 1, rect, 0);
+
+	return screen_win;
+}
+
+
+screen_window_t create_bar_window(const char *group, const char *id, int dims[2])
+{
+	screen_window_t screen_win;
+	screen_create_window_type(&screen_win, screen_ctx, SCREEN_CHILD_WINDOW);
+	screen_join_window_group(screen_win, group);
+	screen_set_window_property_cv(screen_win, SCREEN_PROPERTY_ID_STRING, strlen(id), id);
+
+	int vis = 1;
+	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_VISIBLE, &vis);
+
+	int zorder = 1;
+	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_ZORDER, &zorder);
+
+	int color = 0xff0000ff;
+	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_COLOR, &color);
+
+	int rect[4] = { 0, 0, 1, 1 };
+	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, rect+2);
+
+	int pos[2] = { -rect[2], -rect[3] };
+	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_SOURCE_POSITION, pos);
+	pos[0] = pos[1] = 0;
+	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_POSITION, pos);
+	int size[2] = {barwidth,dims[1]};
+	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_SIZE, size);
 
 
 	screen_buffer_t screen_buf;
@@ -57,37 +92,7 @@ screen_window_t create_bg_window(const char *group, int dims[2])
 }
 
 
-void create_bar_window(const char *group, const char *id, int dims[2])
-{
-	screen_window_t screen_win;
-	screen_create_window_type(&screen_win, screen_ctx, SCREEN_CHILD_WINDOW);
-	screen_join_window_group(screen_win, group);
-	screen_set_window_property_cv(screen_win, SCREEN_PROPERTY_ID_STRING, strlen(id), id);
-
-
-	int vis = 0;
-	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_VISIBLE, &vis);
-
-
-	int color = 0xff0000ff;
-	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_COLOR, &color);
-
-
-	int rect[4] = { 0, 0, 1, 1 };
-	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, rect+2);
-
-
-	int pos[2] = { -rect[2], -rect[3] };
-	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_SOURCE_POSITION, pos);
-
-	screen_buffer_t screen_buf;
-	screen_create_window_buffers(screen_win, 1);
-	screen_get_window_property_pv(screen_win, SCREEN_PROPERTY_RENDER_BUFFERS, (void **)&screen_buf);
-	screen_post_window(screen_win, screen_buf, 1, rect, 0);
-}
-
-
-void create_hg_window(const char *group, const char *id, int dims[2])
+screen_window_t create_hg_window(const char *group, const char *id, int dims[2])
 {
 	int i, j;
 
@@ -96,42 +101,37 @@ void create_hg_window(const char *group, const char *id, int dims[2])
 	screen_join_window_group(screen_win, group);
 	screen_set_window_property_cv(screen_win, SCREEN_PROPERTY_ID_STRING, strlen(id), id);
 
-
 	int flag = 1;
 	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_STATIC, &flag);
 
-	int vis = 0;
+	int vis = 1;
 	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_VISIBLE, &vis);
 
+	int zorder = 2;
+	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_ZORDER, &zorder);
 
 	int format = SCREEN_FORMAT_RGBA8888;
 	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_FORMAT, &format);
 
-
 	int usage = SCREEN_USAGE_WRITE;
 	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_USAGE, &usage);
-
 
 	int transparency = SCREEN_TRANSPARENCY_SOURCE_OVER;
 	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_TRANSPARENCY, &transparency);
 
-
 	int rect[4] = { 0, 0, 100, 100 };
 	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, rect+2);
-
+	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_SIZE, &rect[2]);
 
 	screen_buffer_t screen_buf;
 	screen_create_window_buffers(screen_win, 1);
 	screen_get_window_property_pv(screen_win, SCREEN_PROPERTY_RENDER_BUFFERS, (void **)&screen_buf);
 
-
 	char *ptr = NULL;
 	screen_get_buffer_property_pv(screen_buf, SCREEN_PROPERTY_POINTER, (void **)&ptr);
 
-
 	int stride = 0;
 	screen_get_buffer_property_iv(screen_buf, SCREEN_PROPERTY_STRIDE, &stride);
-
 
 	for (i = 0; i < rect[3]; i++, ptr += stride) {
 		for (j = 0; j < rect[2]; j++) {
@@ -142,13 +142,16 @@ void create_hg_window(const char *group, const char *id, int dims[2])
 		}
 	}
 
-
 	screen_post_window(screen_win, screen_buf, 1, rect, 0);
+
+	return screen_win;
 }
 
+// Variables for EGL
 EGLDisplay egl_disp;
 EGLSurface egl_surf;
 EGLContext egl_ctx;
+
 
 static void egl_perror(const char *msg) {
 	// Borrowed from bbutil.c
@@ -212,8 +215,11 @@ int create_gles_window(const char *group, const char *id, int dims[2])
 	int flag = 1;
 	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_STATIC, &flag);
 
-	int vis = 0;
+	int vis = 1;
 	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_VISIBLE, &vis);
+
+	int zorder = 3;
+	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_ZORDER, &zorder);
 
 	int format = SCREEN_FORMAT_RGBA8888;
 	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_FORMAT, &format);
@@ -225,9 +231,9 @@ int create_gles_window(const char *group, const char *id, int dims[2])
 	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_TRANSPARENCY, &transparency);
 
 	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, dims);
+	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_SIZE, dims);
 
 	screen_buffer_t screen_buf;
-	screen_set_window_property_iv(screen_win, SCREEN_PROPERTY_BUFFER_SIZE, dims);
 	screen_create_window_buffers(screen_win, 1);
 	screen_get_window_property_pv(screen_win, SCREEN_PROPERTY_RENDER_BUFFERS, (void **)&screen_buf);
 
@@ -410,17 +416,19 @@ int create_gles_window(const char *group, const char *id, int dims[2])
 
     glUseProgram(rendering_program); // In this example we use only one rendering program, so we can call this function once
 
+    screen_gles_win = screen_win;
+
     return EXIT_SUCCESS;
 }
 
 int main(int argc, char **argv)
 {
-	int pos[2], size[2];
+	int pos[2] = {0, 0};
+	int size[2];
 	int vis = 0;
 	int type;
 
 	screen_create_context(&screen_ctx, SCREEN_APPLICATION_CONTEXT);
-
 
 	int count = 0;
 	screen_get_context_property_iv(screen_ctx, SCREEN_PROPERTY_DISPLAY_COUNT, &count);
@@ -430,100 +438,42 @@ int main(int argc, char **argv)
 	screen_display_t screen_disp = screen_disps[0];
 	free(screen_disps);
 
-
 	int dims[2] = { 0, 0 };
 	screen_get_display_property_iv(screen_disp, SCREEN_PROPERTY_SIZE, dims);
-
 
 	char str[16];
 	snprintf(str, sizeof(str), "%d", getpid());
 	screen_bg_win = create_bg_window(str, dims);
 
+	screen_bar_win = create_bar_window(str, bar_id_string, dims);
+	screen_hg_win = create_hg_window(str, hg_id_string, dims);
+	if ( create_gles_window(str, gles_id_string, dims) != EXIT_SUCCESS){
+		fprintf(stderr, "Could not initialize OpenGL window. Exiting...\n");
+		screen_destroy_context(screen_ctx);
 
-	create_bar_window(str, bar_id_string, dims);
-	create_hg_window(str, hg_id_string, dims);
-	create_gles_window(str, gles_id_string, dims);
-
+		return EXIT_FAILURE;
+	}
 
 	screen_event_t screen_ev;
 	screen_create_event(&screen_ev);
 
-	while (1) {
-		do {
+	// Now draw our OpenGL stuff, it does not change so we need to do it only once
+	GLfloat vVertices[] = {0.0f, 0.5f, 0.0f, -0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f};
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);
+	glEnableVertexAttribArray(0);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	int rc = eglSwapBuffers(egl_disp, egl_surf);
+    if (rc != EGL_TRUE) {
+        egl_perror("eglSwapBuffers");
+    }
 
+    while (1) {
+		do {
 			screen_get_event(screen_ctx, screen_ev, vis ? 0 : ~0);
 			screen_get_event_property_iv(screen_ev, SCREEN_PROPERTY_TYPE, &type);
 
-
-			if (type == SCREEN_EVENT_POST) {
-
-				screen_window_t screen_win;
-				screen_get_event_property_pv(screen_ev, SCREEN_PROPERTY_WINDOW, (void **)&screen_win);
-				screen_get_window_property_cv(screen_win, SCREEN_PROPERTY_ID_STRING, sizeof(str), str);
-
-
-				if (!screen_bar_win && !strcmp(str, bar_id_string)) {
-					screen_bar_win = screen_win;
-				} else if (!screen_hg_win && !strcmp(str, hg_id_string)) {
-					screen_hg_win = screen_win;
-				} else if (!screen_gles_win && !strcmp(str, gles_id_string)) {
-					screen_gles_win = screen_win;
-				}
-
-
-
-				if (screen_bar_win && screen_hg_win && screen_gles_win) {
-					vis = 1;
-
-
-					screen_get_window_property_iv(screen_hg_win, SCREEN_PROPERTY_BUFFER_SIZE, size);
-					screen_set_window_property_iv(screen_hg_win, SCREEN_PROPERTY_SIZE, size);
-
-					pos[0] = pos[1] = 10;
-					screen_set_window_property_iv(screen_hg_win, SCREEN_PROPERTY_POSITION, pos);
-
-					pos[0] = pos[1] = 0;
-					screen_set_window_property_iv(screen_bar_win, SCREEN_PROPERTY_POSITION, pos);
-					screen_set_window_property_iv(screen_bg_win, SCREEN_PROPERTY_POSITION, pos);
-					screen_set_window_property_iv(screen_gles_win, SCREEN_PROPERTY_POSITION, pos);
-
-					size[0] = barwidth;
-					size[1] = dims[1];
-					screen_set_window_property_iv(screen_bar_win, SCREEN_PROPERTY_SIZE, size);
-
-					size[0] = dims[0];
-					screen_set_window_property_iv(screen_bg_win, SCREEN_PROPERTY_SIZE, size);
-					screen_set_window_property_iv(screen_gles_win, SCREEN_PROPERTY_SIZE, size);
-
-					int zorder = 0;
-					screen_set_window_property_iv(screen_bg_win, SCREEN_PROPERTY_ZORDER, &zorder);
-					zorder++;
-					screen_set_window_property_iv(screen_bar_win, SCREEN_PROPERTY_ZORDER, &zorder);
-					zorder++;
-					screen_set_window_property_iv(screen_hg_win, SCREEN_PROPERTY_ZORDER, &zorder);
-					zorder++;
-					screen_set_window_property_iv(screen_gles_win, SCREEN_PROPERTY_ZORDER, &zorder);
-
-
-					screen_set_window_property_iv(screen_bg_win, SCREEN_PROPERTY_VISIBLE, &vis);
-					screen_set_window_property_iv(screen_hg_win, SCREEN_PROPERTY_VISIBLE, &vis);
-					screen_set_window_property_iv(screen_bar_win, SCREEN_PROPERTY_VISIBLE, &vis);
-					screen_set_window_property_iv(screen_gles_win, SCREEN_PROPERTY_VISIBLE, &vis);
-
-					screen_flush_context(screen_ctx, SCREEN_WAIT_IDLE);
-
-					// Now draw our OpenGL stuff
-					GLfloat vVertices[] = {0.0f, 0.5f, 0.0f, -0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f};
-					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-					glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);
-					glEnableVertexAttribArray(0);
-					glDrawArrays(GL_TRIANGLES, 0, 3);
-					int rc = eglSwapBuffers(egl_disp, egl_surf);
-				    if (rc != EGL_TRUE) {
-				        egl_perror("eglSwapBuffers");
-				    }
-				}
-			} else if (type == SCREEN_EVENT_CLOSE) {
+			if (type == SCREEN_EVENT_CLOSE) {
 
 				screen_window_t screen_win;
 				screen_get_event_property_pv(screen_ev, SCREEN_PROPERTY_WINDOW, (void **)&screen_win);
@@ -537,16 +487,13 @@ int main(int argc, char **argv)
 					screen_gles_win = NULL;
 				}
 
-
 				screen_destroy_window(screen_win);
-
 
 				if (!screen_bar_win || !screen_hg_win || !screen_gles_win) {
 					vis = 0;
 				}
 			}
 		} while (type != SCREEN_EVENT_NONE);
-
 
 		if (vis) {
 			if (++pos[0] > dims[0] - barwidth) {
